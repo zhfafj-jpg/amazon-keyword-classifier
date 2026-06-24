@@ -875,5 +875,20 @@ def analyze_aba_keywords(
     return result_df, rules_df
 
 
-analyze_keywords = analyze_aba_keywords
-analyze = analyze_aba_keywords
+def analyze_keywords(*args, **kwargs):
+    return analyze_aba_keywords(*args, **kwargs)
+
+
+def analyze(*args, **kwargs):
+    return analyze_aba_keywords(*args, **kwargs)
+
+
+__all__ = [
+    "PRODUCT_TYPE_OPTIONS",
+    "PRODUCT_TYPE_LABELS",
+    "analyze",
+    "analyze_keywords",
+    "analyze_aba_keywords",
+    "build_product_profile",
+    "normalize_profile",
+]
