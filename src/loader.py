@@ -4,7 +4,7 @@ import csv
 import io
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import pandas as pd
 
@@ -69,25 +69,51 @@ def list_excel_sheets(uploaded_file) -> list[str]:
     return excel.sheet_names
 
 
+def _csv_text_score(text: str) -> int:
+    sample = normalize_column_name(text[:20000])
+    score = 0
+    for alias in ABA_HEADER_HINTS:
+        normalized_alias = normalize_column_name(alias)
+        if normalized_alias and normalized_alias in sample:
+            score += 1
+    return score
+
+
 def _decode_csv(raw: bytes) -> str:
-    encodings = ["utf-8-sig", "utf-8", "gb18030", "latin1"]
+    encodings = ["gb18030", "utf-8-sig", "utf-8", "latin1"]
+    candidates: list[tuple[str, str, int]] = []
     for encoding in encodings:
         try:
-            return raw.decode(encoding)
+            text = raw.decode(encoding)
         except UnicodeDecodeError:
             continue
+        score = _csv_text_score(text)
+        candidates.append((encoding, text, score))
+        if score > 0:
+            return text
+
+    for encoding, text, _ in candidates:
+        if encoding in {"utf-8-sig", "utf-8"}:
+            return text
+    if candidates:
+        return candidates[0][1]
     return raw.decode("utf-8", errors="replace")
 
 
 def _read_csv_rows(uploaded_file) -> list[list[Any]]:
     uploaded_file.seek(0)
     text = _decode_csv(uploaded_file.read())
-    sample = text[:4096]
-    try:
-        dialect = csv.Sniffer().sniff(sample, delimiters=",\t;")
-    except csv.Error:
-        dialect = csv.excel
-    return [row for row in csv.reader(io.StringIO(text), dialect)]
+    return [
+        row
+        for row in csv.reader(
+            io.StringIO(text),
+            delimiter=",",
+            quotechar='"',
+            doublequote=True,
+            skipinitialspace=False,
+            strict=False,
+        )
+    ]
 
 
 def _read_excel_rows(uploaded_file, sheet_name: str | None) -> list[list[Any]]:
@@ -171,14 +197,26 @@ def _dedupe_headers(headers: list[str]) -> list[str]:
 def _rows_to_dataframe(rows: list[list[Any]], header_index: int) -> pd.DataFrame:
     header_row = rows[header_index] if rows else []
     header_width = max(len(header_row), 1)
-    headers = _dedupe_headers([str(value).strip() for value in header_row[:header_width]])
+    headers = _dedupe_headers([str(value).strip() for value in header_row])
 
     records: list[list[Any]] = []
-    for row in rows[header_index + 1 :]:
+    bad_rows: list[str] = []
+    for offset, row in enumerate(rows[header_index + 1 :], start=header_index + 2):
         if not _row_values(row):
             continue
-        padded = list(row[:header_width]) + [""] * max(0, header_width - len(row))
-        records.append(padded[:header_width])
+        if len(row) != header_width:
+            preview = " | ".join(str(value) for value in row[:8])
+            bad_rows.append(f"第 {offset} 行：解析到 {len(row)} 列，表头为 {header_width} 列。预览：{preview}")
+            continue
+        records.append(list(row))
+
+    if bad_rows:
+        details = "\n".join(bad_rows[:10])
+        raise ValueError(
+            "CSV/Excel 数据行列数与真实表头不一致，已停止分析，避免生成错位结果。\n"
+            "请检查商品标题等字段中的逗号和双引号是否按 CSV 标准正确转义。\n"
+            f"{details}"
+        )
 
     frame = pd.DataFrame(records, columns=headers)
     frame = frame.dropna(how="all")

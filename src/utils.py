@@ -16,8 +16,56 @@ KEYWORD_ALIASES = [
 ABA_COLUMN_ALIASES = {
     "keyword": KEYWORD_ALIASES,
     "search_frequency_rank": ["搜索频率排名", "Search Frequency Rank", "SFR"],
-    "click_share": ["点击占比", "点击份额", "Click Share"],
-    "conversion_share": ["转化份额", "转化占比", "Conversion Share"],
+    "click_share": [
+        "点击量最高的商品 #1：点击份额",
+        "点击量最高的商品 #1: 点击份额",
+        "点击量最高的商品#1：点击份额",
+        "点击份额 #1",
+        "点击占比 #1",
+        "Click Share #1",
+        "Click Share",
+        "点击占比",
+        "点击份额",
+    ],
+    "conversion_share": [
+        "点击量最高的商品 #1：转化份额",
+        "点击量最高的商品 #1: 转化份额",
+        "点击量最高的商品#1：转化份额",
+        "转化份额 #1",
+        "转化占比 #1",
+        "Conversion Share #1",
+        "Conversion Share",
+        "转化份额",
+        "转化占比",
+    ],
+    "click_share_2": [
+        "点击量最高的商品 #2：点击份额",
+        "点击量最高的商品 #2: 点击份额",
+        "点击量最高的商品#2：点击份额",
+        "点击份额 #2",
+        "Click Share #2",
+    ],
+    "conversion_share_2": [
+        "点击量最高的商品 #2：转化份额",
+        "点击量最高的商品 #2: 转化份额",
+        "点击量最高的商品#2：转化份额",
+        "转化份额 #2",
+        "Conversion Share #2",
+    ],
+    "click_share_3": [
+        "点击量最高的商品 #3：点击份额",
+        "点击量最高的商品 #3: 点击份额",
+        "点击量最高的商品#3：点击份额",
+        "点击份额 #3",
+        "Click Share #3",
+    ],
+    "conversion_share_3": [
+        "点击量最高的商品 #3：转化份额",
+        "点击量最高的商品 #3: 转化份额",
+        "点击量最高的商品#3：转化份额",
+        "转化份额 #3",
+        "Conversion Share #3",
+    ],
     "product_title": ["商品标题", "Product Title"],
     "brand": ["品牌", "Brand"],
     "asin": ["ASIN"],
@@ -116,6 +164,14 @@ def parse_percent(value: object) -> Optional[float]:
         return None
     if "%" in str(value) or number > 1:
         return number / 100
+    return number
+
+
+def parse_percent_points(value: object) -> Optional[float]:
+    """Parse ABA share values as percentage points, e.g. 32.09 stays 32.09."""
+    number = parse_number(value)
+    if number is None:
+        return None
     return number
 
 

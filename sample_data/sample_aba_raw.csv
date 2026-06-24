@@ -1,29 +1,30 @@
-Report Date,2026-06-01 to 2026-06-07
-Report Range,Weekly
-Search Term=["luggage"]
+报告日期,2026-06-01 至 2026-06-07
+报告范围,Weekly
+搜索词=["luggage"]
 Department,Luggage
 Marketplace,Amazon.com
 
-Search Frequency Rank,Search Term,Click Share,Conversion Share,Product Title,Brand,ASIN
-800,luggage,20%,18%,Generic luggage,Generic,B0TEST000
-1200,front pocket carry on luggage,18%,22%,20 inch carry on luggage with front pocket,NOBL Travel,B0TEST001
-2200,laptop compartment carry on luggage,16%,17%,Business carry on luggage,NOBL Travel,B0TEST002
-3000,carry on luggage,19%,20%,Airline approved carry on,NOBL Travel,B0TEST003
-3600,silver carry on luggage,11%,12%,Hardside carry on luggage,NOBL Travel,B0TEST004
-5200,checked luggage,12%,13%,Checked luggage,Generic,B0TEST005
-5800,samsonite luggage,23%,20%,Samsonite carry on luggage,Samsonite,B0TEST006
-6200,rimowa luggage,21%,18%,Rimowa luggage,Rimowa,B0TEST007
-6400,luggage cover,8%,4%,Suitcase cover,Generic,B0TEST008
-7200,luggage tags,7%,3%,Luggage tags,Generic,B0TEST009
-7600,luggage tags for suitcases,6%,2%,Luggage tags,Generic,B0TEST010
-8200,luggage set,14%,16%,Luggage set,Generic,B0TEST011
-8400,luggage sets,13%,12%,Luggage sets,Generic,B0TEST012
-9000,luggage weight scale,5%,2%,Luggage weight scale,Generic,B0TEST013
-9800,replacement wheel for suitcase,4%,1%,Replacement wheel,Generic,B0TEST014
-15000,22x14x9 carry on luggage,20%,24%,Airline approved carry on,NOBL Travel,B0TEST015
-42000,cheap carry on luggage,13%,5%,Budget carry on suitcase,Generic,B0TEST016
-76000,hardside spinner suitcase,7%,8%,Hardside spinner carry on,NOBL Travel,B0TEST017
-92000,trunk luggage,8%,10%,Trunk luggage,Generic,B0TEST018
-168000,kids ride on suitcase,5%,2%,Kids ride on suitcase,Generic,B0TEST019
-240000,underseat luggage,2%,2%,Underseat luggage,Generic,B0TEST020
-420000,iphone travel case,1%,0.5%,Phone case,Generic,B0TEST021
+搜索频率排名,搜索词,点击量最高的商品 #1：商品标题,点击量最高的商品 #1：品牌,点击量最高的商品 #1：ASIN,点击量最高的商品 #1：点击份额,点击量最高的商品 #1：转化份额
+800,luggage,"Amazon Basics 21"""" Hardside Carry-On Luggage with Expandable Space, Scratch-Resistant Surface",Amazon Basics,B0TEST000,32.09,0.57
+1200,front pocket carry on luggage,"20 inch Carry-On Luggage with Front Pocket, Laptop Compartment",NOBL Travel,B0TEST001,18.00,22.00
+2200,laptop compartment carry on luggage,"Business Carry-On Luggage, Laptop Compartment",NOBL Travel,B0TEST002,16.00,17.00
+3000,carry on luggage,"Expandable for Up to 25% More Space, Carry-On Suitcase",NOBL Travel,B0TEST003,48.1,0.67
+3600,silver carry on luggage,Hardside Carry-On Luggage,NOBL Travel,B0TEST004,11.00,12.00
+5200,checked luggage,Checked Luggage,Generic,B0TEST005,23.14,0
+5400,carry-on luggage,Carry-On Luggage,Generic,B0TEST006,12.21,1.13
+5800,samsonite luggage,Samsonite Carry-On Luggage,Samsonite,B0TEST007,23.00,20.00
+6200,rimowa luggage,Rimowa Luggage,Rimowa,B0TEST008,21.00,18.00
+6400,luggage cover,Suitcase Cover,Generic,B0TEST009,8.00,4.00
+7200,luggage tags,Luggage Tags,Generic,B0TEST010,7.37,5.29
+7600,luggage tags for suitcases,Luggage Tags,Generic,B0TEST011,6.00,2.00
+8200,luggage set,Luggage Set,Generic,B0TEST012,14.00,16.00
+8400,luggage sets,Luggage Sets,Generic,B0TEST013,13.00,12.00
+9000,luggage weight scale,Luggage Weight Scale,Generic,B0TEST014,5.00,2.00
+9800,replacement wheel for suitcase,Replacement Wheel,Generic,B0TEST015,4.00,1.00
+15000,22x14x9 carry on luggage,Airline Approved Carry-On,NOBL Travel,B0TEST016,20.00,24.00
+42000,cheap carry on luggage,Budget Carry-On Suitcase,Generic,B0TEST017,13.00,5.00
+76000,hardside spinner suitcase,Hardside Spinner Carry-On,NOBL Travel,B0TEST018,7.00,8.00
+92000,trunk luggage,Trunk Luggage,Generic,B0TEST019,8.00,10.00
+168000,kids ride on suitcase,Kids Ride On Suitcase,Generic,B0TEST020,5.00,2.00
+240000,underseat luggage,Underseat Luggage,Generic,B0TEST021,2.00,2.00
+420000,iphone travel case,Phone Case,Generic,B0TEST022,1.00,0.50

@@ -28,8 +28,8 @@ KEYWORD_LIBRARY_COLUMNS = [
     "推广优先级",
     "建议动作",
     "搜索频率排名",
-    "点击占比",
-    "转化份额",
+    "Top1点击份额",
+    "Top1转化份额",
     "转化优势",
     "相关性评分",
     "是否品牌词",
@@ -42,7 +42,7 @@ KEYWORD_LIBRARY_COLUMNS = [
 ]
 
 
-PERCENT_COLUMNS = ["点击占比", "转化份额", "转化优势"]
+SHARE_COLUMNS = ["Top1点击份额", "Top1转化份额", "转化优势"]
 NUMBER_COLUMNS = [
     "搜索频率排名",
     "相关性评分",
@@ -118,8 +118,8 @@ def build_keyword_library_df(result_df: pd.DataFrame, metadata: dict[str, Any] |
                 "推广优先级": safe_cell(row.get("推广优先级", "")),
                 "建议动作": safe_cell(row.get("建议动作", "")),
                 "搜索频率排名": safe_cell(row.get("搜索频率排名", "")),
-                "点击占比": safe_cell(row.get("点击占比", "")),
-                "转化份额": safe_cell(row.get("转化份额", "")),
+                "Top1点击份额": safe_cell(row.get("Top1点击份额", "")),
+                "Top1转化份额": safe_cell(row.get("Top1转化份额", "")),
                 "转化优势": safe_cell(row.get("转化优势", "")),
                 "相关性评分": safe_cell(row.get("相关性评分", row.get("产品相关性评分", ""))),
                 "是否品牌词": safe_cell(row.get("是否品牌词", "")),
@@ -144,7 +144,7 @@ def _write_sheet(writer: pd.ExcelWriter, sheet_name: str, df: pd.DataFrame) -> N
 
     header_format = workbook.add_format({"bold": True, "bg_color": "#0F766E", "font_color": "white", "border": 1})
     text_format = workbook.add_format({"text_wrap": True, "valign": "top"})
-    percent_format = workbook.add_format({"num_format": "0.00%", "valign": "top"})
+    share_format = workbook.add_format({"num_format": "0.00", "valign": "top"})
     number_format = workbook.add_format({"num_format": "#,##0", "valign": "top"})
     score_format = workbook.add_format({"num_format": "0", "valign": "top"})
     date_format = workbook.add_format({"num_format": "yyyy-mm-dd", "valign": "top"})
@@ -163,8 +163,8 @@ def _write_sheet(writer: pd.ExcelWriter, sheet_name: str, df: pd.DataFrame) -> N
         width = max(width, 12)
 
         fmt = text_format
-        if column in PERCENT_COLUMNS:
-            fmt = percent_format
+        if column in SHARE_COLUMNS:
+            fmt = share_format
         elif column == "搜索频率排名":
             fmt = number_format
         elif column in NUMBER_COLUMNS:

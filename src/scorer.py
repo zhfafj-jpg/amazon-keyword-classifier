@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .utils import clamp, parse_number, parse_percent
+from .utils import clamp, parse_number, parse_percent_points
 
 
 def get_row_value(row: Any, column: str | None):
@@ -18,11 +18,26 @@ def get_row_value(row: Any, column: str | None):
 
 
 def extract_aba_metrics(row: Any, detected_columns: dict[str, str]) -> dict[str, float | None]:
+    click_share = first_available_share(row, detected_columns, ["click_share", "click_share_2", "click_share_3"])
+    conversion_share = first_available_share(
+        row,
+        detected_columns,
+        ["conversion_share", "conversion_share_2", "conversion_share_3"],
+    )
     return {
         "search_frequency_rank": parse_number(get_row_value(row, detected_columns.get("search_frequency_rank"))),
-        "click_share": parse_percent(get_row_value(row, detected_columns.get("click_share"))),
-        "conversion_share": parse_percent(get_row_value(row, detected_columns.get("conversion_share"))),
+        "click_share": click_share,
+        "conversion_share": conversion_share,
     }
+
+
+def first_available_share(row: Any, detected_columns: dict[str, str], canonical_keys: list[str]) -> float | None:
+    for key in canonical_keys:
+        column = detected_columns.get(key)
+        value = parse_percent_points(get_row_value(row, column))
+        if value is not None:
+            return value
+    return None
 
 
 def demand_score(rank: float | None) -> int | None:
@@ -58,7 +73,7 @@ def demand_level(rank: float | None) -> str:
 def conversion_advantage(click_share: float | None, conversion_share: float | None) -> float | None:
     if click_share is None or conversion_share is None:
         return None
-    return conversion_share - click_share
+    return round(conversion_share - click_share, 4)
 
 
 def click_conversion_efficiency(click_share: float | None, conversion_share: float | None) -> str:
@@ -67,13 +82,13 @@ def click_conversion_efficiency(click_share: float | None, conversion_share: flo
     advantage = conversion_advantage(click_share, conversion_share)
     if advantage is None:
         return "数据不足"
-    if advantage > 0.005:
+    if advantage > 0.5:
         return "成交效率强"
-    if abs(advantage) <= 0.005:
+    if abs(advantage) <= 0.5:
         return "正常"
-    if click_share >= 0.08 and conversion_share < click_share:
+    if click_share >= 8 and conversion_share < click_share:
         return "点击强但成交弱"
-    if click_share < 0.03 and conversion_share < 0.03:
+    if click_share < 3 and conversion_share < 3:
         return "弱"
     return "成交偏弱"
 
@@ -82,15 +97,15 @@ def click_conversion_efficiency_score(click_share: float | None, conversion_shar
     if click_share is None or conversion_share is None:
         return None
     advantage = conversion_share - click_share
-    if advantage >= 0.03:
+    if advantage >= 3:
         return 95
-    if advantage > 0.005:
+    if advantage > 0.5:
         return 82
-    if abs(advantage) <= 0.005:
+    if abs(advantage) <= 0.5:
         return 65
-    if click_share >= 0.08 and conversion_share < click_share:
+    if click_share >= 8 and conversion_share < click_share:
         return 35
-    if click_share < 0.03 and conversion_share < 0.03:
+    if click_share < 3 and conversion_share < 3:
         return 45
     return 50
 

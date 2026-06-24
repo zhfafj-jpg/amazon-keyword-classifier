@@ -36,8 +36,8 @@ OUTPUT_COLUMNS = [
     "中文翻译",
     "词意图类型",
     "搜索频率排名",
-    "点击占比",
-    "转化份额",
+    "Top1点击份额",
+    "Top1转化份额",
     "转化优势",
     "需求评分",
     "需求等级",
@@ -379,9 +379,9 @@ def analyze_aba_keywords(
         if translation_note:
             notes.append(translation_note)
         if click_eff == "成交效率强":
-            notes.append("转化份额高于点击占比，成交效率强")
+            notes.append("Top1转化份额高于Top1点击份额，成交效率强")
         elif click_eff == "点击强但成交弱":
-            notes.append("点击占比高但转化份额偏低")
+            notes.append("Top1点击份额高但Top1转化份额偏低")
         if category == "待人工确认":
             notes.append("数据或规则不足，需要人工确认")
 
@@ -390,8 +390,8 @@ def analyze_aba_keywords(
             "中文翻译": translation,
             "词意图类型": intent,
             "搜索频率排名": _clean_missing(metrics["search_frequency_rank"]),
-            "点击占比": _clean_missing(metrics["click_share"]),
-            "转化份额": _clean_missing(metrics["conversion_share"]),
+            "Top1点击份额": _clean_missing(metrics["click_share"]),
+            "Top1转化份额": _clean_missing(metrics["conversion_share"]),
             "转化优势": _clean_missing(conversion_advantage_value),
             "需求评分": _clean_missing(demand_score_value),
             "需求等级": demand_level_value,
