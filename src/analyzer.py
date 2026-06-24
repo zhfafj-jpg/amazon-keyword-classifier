@@ -5,7 +5,13 @@ from typing import Any
 
 import pandas as pd
 
-from .scorer import classify_priority, click_conversion_efficiency, demand_score, extract_aba_metrics
+from .scorer import (
+    classify_priority,
+    click_conversion_efficiency,
+    conversion_advantage,
+    demand_score,
+    extract_aba_metrics,
+)
 from .translator import translate_keyword
 from .utils import clamp, compact_join, match_terms, split_terms, yes_no
 
@@ -195,9 +201,7 @@ def analyze_aba_keywords(
         click_eff = click_conversion_efficiency(metrics["click_share"], metrics["conversion_share"])
         demand = demand_score(metrics["search_frequency_rank"])
         category, priority, action = classify_priority(relevance, metrics, flags, click_eff)
-        conversion_advantage = None
-        if metrics["click_share"] is not None and metrics["conversion_share"] is not None:
-            conversion_advantage = metrics["conversion_share"] - metrics["click_share"]
+        conversion_advantage_value = conversion_advantage(metrics["click_share"], metrics["conversion_share"])
 
         negative_candidate = _is_negative_candidate(category, flags, relevance)
         rule_hit_text = build_rule_hit_text(flags)
@@ -219,7 +223,7 @@ def analyze_aba_keywords(
             "搜索频率排名": metrics["search_frequency_rank"],
             "点击占比": metrics["click_share"],
             "转化份额": metrics["conversion_share"],
-            "转化优势": conversion_advantage,
+            "转化优势": conversion_advantage_value,
             "需求评分": demand,
             "点击转化效率": click_eff,
             "相关性评分": relevance,

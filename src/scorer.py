@@ -42,7 +42,9 @@ def demand_score(rank: float | None) -> str:
 def click_conversion_efficiency(click_share: float | None, conversion_share: float | None) -> str:
     if click_share is None or conversion_share is None:
         return "数据不足"
-    advantage = conversion_share - click_share
+    advantage = conversion_advantage(click_share, conversion_share)
+    if advantage is None:
+        return "数据不足"
     if advantage > 0.005:
         return "成交效率强"
     if abs(advantage) <= 0.005:
@@ -52,6 +54,12 @@ def click_conversion_efficiency(click_share: float | None, conversion_share: flo
     if click_share < 0.03 and conversion_share < 0.03:
         return "弱"
     return "成交偏弱"
+
+
+def conversion_advantage(click_share: float | None, conversion_share: float | None) -> float | None:
+    if click_share is None or conversion_share is None:
+        return None
+    return conversion_share - click_share
 
 
 def has_good_rank(rank: float | None) -> bool:
