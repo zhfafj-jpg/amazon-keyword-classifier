@@ -1,8 +1,12 @@
 brand_terms: [samsonite, rimowa, away, monos, travelers choice, travelpro, american tourister, delsey, swissgear, briggs riley, mixi, ifly, coolife, it luggage, beis, july, tumi, luggex, nobl travel, amazon basics]
 
-accessory_terms: [luggage cover, suitcase cover, cover, replacement wheel, wheel replacement, wheels replacement, luggage wheel, luggage tag, tag, tags, packing cubes, phone case, iphone, airpod, wallet, sticker, decal, lock replacement, zipper repair, backpack, duffel, duffle, tote, kids, ride on, scooter, scale, weight scale]
+accessory_terms: [luggage tag, luggage tags, luggage cover, suitcase cover, cover, scale, weight scale, luggage weight scale, replacement wheel, wheel replacement, wheels replacement, luggage wheel, tag, tags, packing cubes, phone case, iphone, airpod, wallet, sticker, decal, lock replacement, zipper repair]
 
-different_category_terms: [phone case, iphone, airpod, wallet, backpack, duffel, duffle, tote, kids, ride on, scooter, scale, weight scale]
+set_terms: [luggage set, luggage sets, suitcase set, suitcase sets, 2 piece, 3 piece, 4 piece, two piece, three piece, four piece]
+
+different_category_terms: [backpack, duffel, duffle, tote, kids, ride on, scooter, underseat, phone case, iphone, airpod, wallet]
+
+generic_terms: [luggage, suitcase]
 
 core_candidate_terms: [luggage, suitcase, carry on luggage, carry-on luggage, carry on suitcase, trunk luggage, trunk suitcase, checked luggage, hardside luggage, front pocket carry on luggage, laptop compartment carry on luggage]
 
@@ -36,15 +40,25 @@ translation_terms:
   expandable: 可扩展
   underseat: 座位下行李
   luggage set: 行李箱套装
+  luggage sets: 行李箱套装
+  suitcase set: 行李箱套装
+  suitcase sets: 行李箱套装
   duffel: 旅行包
   duffle: 旅行包
   backpack: 背包
   kids: 儿童
   cover: 保护套
+  luggage cover: 行李箱保护套
+  suitcase cover: 行李箱保护套
   replacement wheel: 替换轮子
   wheel replacement: 替换轮子
+  luggage tag: 行李牌
+  luggage tags: 行李牌
   tag: 行李牌
   tags: 行李牌
+  scale: 称重秤
+  weight scale: 称重秤
+  luggage weight scale: 行李称重秤
   rimowa: Rimowa品牌
   samsonite: Samsonite品牌
   away: Away品牌

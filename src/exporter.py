@@ -43,14 +43,60 @@ KEYWORD_LIBRARY_COLUMNS = [
 
 
 PERCENT_COLUMNS = ["点击占比", "转化份额", "转化优势"]
-NUMBER_COLUMNS = ["搜索频率排名", "相关性评分"]
+NUMBER_COLUMNS = [
+    "搜索频率排名",
+    "相关性评分",
+    "产品相关性评分",
+    "需求评分",
+    "点击转化效率评分",
+    "风险评分",
+    "综合优先级评分",
+]
 DATE_COLUMNS = ["首次发现日期", "最近更新日期"]
+
+
+def safe_len(value: Any) -> int:
+    if value is None:
+        return 0
+    try:
+        if pd.isna(value):
+            return 0
+    except Exception:
+        pass
+    return len(str(value))
+
+
+def safe_cell(value: Any) -> Any:
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+    except Exception:
+        pass
+    return value
+
+
+def _clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df.copy()
+    return df.map(safe_cell)
 
 
 def filter_sheet(df: pd.DataFrame, category: str | None) -> pd.DataFrame:
     if category is None or df.empty:
         return df.copy()
     return df.loc[df["分类结果"].astype(str).eq(category)].copy()
+
+
+def filter_negative_library(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df.copy()
+    if "词库类型" in df.columns:
+        return df.loc[df["词库类型"].astype(str).eq("否词候选库")].copy()
+    if "是否否词候选" in df.columns:
+        return df.loc[df["是否否词候选"].astype(str).eq("是")].copy()
+    return df.iloc[0:0].copy()
 
 
 def build_keyword_library_df(result_df: pd.DataFrame, metadata: dict[str, Any] | None = None) -> pd.DataFrame:
@@ -64,25 +110,25 @@ def build_keyword_library_df(result_df: pd.DataFrame, metadata: dict[str, Any] |
     for _, row in result_df.iterrows():
         rows.append(
             {
-                "关键词": row.get("原搜索词", ""),
-                "中文翻译": row.get("中文翻译", ""),
+                "关键词": safe_cell(row.get("原搜索词", "")),
+                "中文翻译": safe_cell(row.get("中文翻译", "")),
                 "产品线": product_line,
                 "适用产品": applicable_product,
-                "分类结果": row.get("分类结果", ""),
-                "推广优先级": row.get("推广优先级", ""),
-                "建议动作": row.get("建议动作", ""),
-                "搜索频率排名": row.get("搜索频率排名", ""),
-                "点击占比": row.get("点击占比", ""),
-                "转化份额": row.get("转化份额", ""),
-                "转化优势": row.get("转化优势", ""),
-                "相关性评分": row.get("相关性评分", ""),
-                "是否品牌词": row.get("是否品牌词", ""),
-                "是否配件词": row.get("是否配件词", ""),
-                "是否否词候选": row.get("是否否词候选", ""),
+                "分类结果": safe_cell(row.get("分类结果", "")),
+                "推广优先级": safe_cell(row.get("推广优先级", "")),
+                "建议动作": safe_cell(row.get("建议动作", "")),
+                "搜索频率排名": safe_cell(row.get("搜索频率排名", "")),
+                "点击占比": safe_cell(row.get("点击占比", "")),
+                "转化份额": safe_cell(row.get("转化份额", "")),
+                "转化优势": safe_cell(row.get("转化优势", "")),
+                "相关性评分": safe_cell(row.get("相关性评分", row.get("产品相关性评分", ""))),
+                "是否品牌词": safe_cell(row.get("是否品牌词", "")),
+                "是否配件词": safe_cell(row.get("是否配件词", "")),
+                "是否否词候选": safe_cell(row.get("是否否词候选", "")),
                 "来源": source,
                 "首次发现日期": today,
                 "最近更新日期": today,
-                "备注": row.get("备注", ""),
+                "备注": safe_cell(row.get("备注", "")),
             }
         )
 
@@ -91,7 +137,8 @@ def build_keyword_library_df(result_df: pd.DataFrame, metadata: dict[str, Any] |
 
 def _write_sheet(writer: pd.ExcelWriter, sheet_name: str, df: pd.DataFrame) -> None:
     safe_name = sheet_name[:31]
-    df.to_excel(writer, sheet_name=safe_name, index=False)
+    clean_df = _clean_df(df)
+    clean_df.to_excel(writer, sheet_name=safe_name, index=False)
     workbook = writer.book
     worksheet = writer.sheets[safe_name]
 
@@ -104,38 +151,45 @@ def _write_sheet(writer: pd.ExcelWriter, sheet_name: str, df: pd.DataFrame) -> N
     s_format = workbook.add_format({"bg_color": "#DDF6E6"})
     d_format = workbook.add_format({"bg_color": "#FFE4E1"})
 
-    for col_idx, column in enumerate(df.columns):
+    for col_idx, column in enumerate(clean_df.columns):
         worksheet.write(0, col_idx, column, header_format)
-        sample_values = [str(column), *df[column].astype(str).head(80).tolist()] if not df.empty else [str(column)]
-        width = min(max(len(value) for value in sample_values) + 2, 46)
+        sample_values = [column]
+        if not clean_df.empty:
+            sample_values.extend(clean_df[column].head(80).tolist())
+        if sample_values:
+            width = min(max(safe_len(value) for value in sample_values) + 2, 46)
+        else:
+            width = 12
+        width = max(width, 12)
+
         fmt = text_format
         if column in PERCENT_COLUMNS:
             fmt = percent_format
         elif column == "搜索频率排名":
             fmt = number_format
-        elif column == "相关性评分":
+        elif column in NUMBER_COLUMNS:
             fmt = score_format
         elif column in DATE_COLUMNS:
             fmt = date_format
         worksheet.set_column(col_idx, col_idx, width, fmt)
 
     worksheet.freeze_panes(1, 0)
-    if len(df.columns) > 0:
-        worksheet.autofilter(0, 0, max(len(df), 1), len(df.columns) - 1)
+    if len(clean_df.columns) > 0:
+        worksheet.autofilter(0, 0, max(len(clean_df), 1), len(clean_df.columns) - 1)
 
-    if "分类结果" in df.columns and not df.empty:
-        category_col = df.columns.get_loc("分类结果")
+    if "分类结果" in clean_df.columns and not clean_df.empty:
+        category_col = clean_df.columns.get_loc("分类结果")
         worksheet.conditional_format(
             1,
             category_col,
-            len(df),
+            len(clean_df),
             category_col,
             {"type": "text", "criteria": "containing", "value": "S级", "format": s_format},
         )
         worksheet.conditional_format(
             1,
             category_col,
-            len(df),
+            len(clean_df),
             category_col,
             {"type": "text", "criteria": "containing", "value": "D级", "format": d_format},
         )
@@ -152,6 +206,7 @@ def create_excel_bytes(
         for sheet_name, category in SHEET_MAP.items():
             _write_sheet(writer, sheet_name, filter_sheet(result_df, category))
         _write_sheet(writer, "可沉淀关键词库", keyword_library_df)
+        _write_sheet(writer, "否词候选库", filter_negative_library(result_df))
         _write_sheet(writer, "规则说明", rules_df)
     output.seek(0)
     return output.read()
