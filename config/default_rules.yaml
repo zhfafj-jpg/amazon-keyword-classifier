@@ -1,6 +1,6 @@
 brand_terms: [samsonite, rimowa, away, monos, travelers choice, travelpro, american tourister, delsey, swissgear, briggs riley, mixi, ifly, coolife, it luggage, beis, july, tumi, luggex, nobl travel, amazon basics]
 
-accessory_terms: [luggage tag, luggage tags, luggage cover, suitcase cover, cover, scale, weight scale, luggage weight scale, replacement wheel, wheel replacement, wheels replacement, luggage wheel, tag, tags, packing cubes, phone case, iphone, airpod, wallet, sticker, decal, lock replacement, zipper repair]
+accessory_terms: [luggage tag, luggage tags, luggage cover, suitcase cover, cover, scale, weight scale, luggage weight scale, replacement wheel, wheel replacement, wheels replacement, luggage wheel, tag, tags, packing cubes, phone case, iphone, airpod, wallet, sticker, decal, lock replacement, zipper repair, luggage strap, luggage straps, straps, luggage lock, luggage locks, locks]
 
 set_terms: [luggage set, luggage sets, suitcase set, suitcase sets, 2 piece, 3 piece, 4 piece, two piece, three piece, four piece]
 
@@ -21,6 +21,38 @@ scene_terms: [travel, business, airline, carry on, checked, vacation, trip, flig
 material_terms: [polycarbonate, abs, aluminum, fabric, softside, soft side, hard shell, hardside]
 
 low_intent_terms: [cheap, discount, deal, clearance, used, second hand, repair, replacement]
+
+product_type_rules:
+  carry_on_luggage:
+    core_terms: [carry on luggage, carry-on luggage, carry on suitcase, carry-on suitcase]
+    precision_terms: [20 inch carry on luggage, 22x14x9 carry on luggage, airline approved carry on luggage, hardside carry on luggage]
+    downgrade_terms: [checked luggage, checked suitcase, large checked luggage, 30 inch luggage, 26 inch luggage]
+    hard_negative_terms: []
+  checked_luggage:
+    core_terms: [checked luggage, checked suitcase]
+    precision_terms: [medium checked luggage, large checked luggage, 26 inch luggage, 28 inch luggage, 30 inch luggage]
+    downgrade_terms: [carry on luggage, carry-on luggage, 22x14x9 carry on luggage, 20 inch carry on luggage]
+    hard_negative_terms: []
+  trunk_luggage:
+    core_terms: [trunk luggage, trunk suitcase, trunk style luggage, trunk-style luggage]
+    precision_terms: [checked trunk luggage, medium trunk luggage, large trunk luggage, 26 inch luggage, 30 inch luggage, medium checked luggage, large checked luggage]
+    downgrade_terms: [carry on luggage, carry-on luggage, 20 inch carry on luggage, 22x14x9 carry on luggage]
+    hard_negative_terms: [front pocket, laptop compartment, usb, underseat]
+  front_pocket_luggage:
+    core_terms: [front pocket carry on luggage, carry on luggage with front pocket, laptop compartment carry on luggage, carry on luggage with laptop compartment]
+    precision_terms: [22x14x9 carry on luggage, 20 inch carry on luggage, airline approved carry on luggage, business carry on luggage]
+    downgrade_terms: [checked luggage, large checked luggage, 30 inch luggage]
+    hard_negative_terms: [trunk luggage, trunk suitcase, trunk style luggage]
+  luggage_set:
+    core_terms: [luggage set, luggage sets, suitcase set, suitcase sets]
+    precision_terms: [2 piece luggage set, 3 piece luggage set, 4 piece luggage set, 3 piece suitcase set]
+    downgrade_terms: [single carry on luggage, single checked luggage]
+    hard_negative_terms: []
+  accessory:
+    core_terms: [luggage tag, luggage tags, luggage cover, luggage scale, weight scale, luggage strap, luggage straps, tsa lock]
+    precision_terms: [leather luggage tags, digital luggage scale, suitcase cover, luggage weight scale]
+    downgrade_terms: []
+    hard_negative_terms: []
 
 translation_terms:
   luggage: 行李箱
@@ -59,6 +91,10 @@ translation_terms:
   scale: 称重秤
   weight scale: 称重秤
   luggage weight scale: 行李称重秤
+  luggage strap: 行李绑带
+  luggage straps: 行李绑带
+  luggage lock: 行李锁
+  luggage locks: 行李锁
   rimowa: Rimowa品牌
   samsonite: Samsonite品牌
   away: Away品牌

@@ -1,0 +1,15 @@
+scenario,product_title,keyword,expected_behavior
+M2 20 inch Carry-On,"20 Inch Carry On Luggage 22x14x9 Airline Approved, Hardside Carry On Suitcase with Spinner Wheels, TSA Lock, Black",carry on luggage,core A/S candidate
+M2 20 inch Carry-On,"20 Inch Carry On Luggage 22x14x9 Airline Approved, Hardside Carry On Suitcase with Spinner Wheels, TSA Lock, Black",20 inch carry on luggage,precision A/S candidate
+M2 20 inch Carry-On,"20 Inch Carry On Luggage 22x14x9 Airline Approved, Hardside Carry On Suitcase with Spinner Wheels, TSA Lock, Black",checked luggage,downgrade or manual confirmation
+M2 20 inch Carry-On,"20 Inch Carry On Luggage 22x14x9 Airline Approved, Hardside Carry On Suitcase with Spinner Wheels, TSA Lock, Black",luggage tags,D negative candidate
+M19 26 inch Trunk Checked,"26 Inch Medium Checked Luggage, PC Hardshell Trunk Luggage with 3:7 Split Design, TSA Lock, Spinner Wheels",trunk luggage,core A/S candidate
+M19 26 inch Trunk Checked,"26 Inch Medium Checked Luggage, PC Hardshell Trunk Luggage with 3:7 Split Design, TSA Lock, Spinner Wheels",26 inch luggage,precision A/S candidate
+M19 26 inch Trunk Checked,"26 Inch Medium Checked Luggage, PC Hardshell Trunk Luggage with 3:7 Split Design, TSA Lock, Spinner Wheels",front pocket carry on luggage,D or irrelevant
+M19 30 inch Large Trunk,"30 Inch Large Checked Luggage, PC Hardshell Trunk Luggage with 3:7 Split Design",30 inch luggage,precision A/S candidate
+M19 30 inch Large Trunk,"30 Inch Large Checked Luggage, PC Hardshell Trunk Luggage with 3:7 Split Design",medium checked luggage,downgrade or manual confirmation
+G3/G4 Front Pocket Carry-On,"20 Inch Carry On Luggage with Front Pocket, 22x14x9 Airline Approved Expandable Hardside Suitcase with Laptop Compartment, TSA Lock, USB Port, Spinner Wheels",front pocket carry on luggage,core or precision A/S candidate
+G3/G4 Front Pocket Carry-On,"20 Inch Carry On Luggage with Front Pocket, 22x14x9 Airline Approved Expandable Hardside Suitcase with Laptop Compartment, TSA Lock, USB Port, Spinner Wheels",trunk luggage,D or irrelevant
+G3/G4 Front Pocket Carry-On,"20 Inch Carry On Luggage with Front Pocket, 22x14x9 Airline Approved Expandable Hardside Suitcase with Laptop Compartment, TSA Lock, USB Port, Spinner Wheels",checked luggage,downgrade or manual confirmation
+Accessory,"Leather Luggage Tags with Privacy Cover for Suitcase Travel Bag",luggage tags,core A/S candidate for accessory product
+Accessory,"Leather Luggage Tags with Privacy Cover for Suitcase Travel Bag",carry on luggage,D negative candidate for accessory product

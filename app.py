@@ -6,7 +6,7 @@ from typing import Any
 
 import streamlit as st
 
-from src.analyzer import PRODUCT_TYPE_OPTIONS, analyze_aba_keywords, build_product_profile, normalize_profile
+from src.analyzer import PRODUCT_TYPE_LABELS, PRODUCT_TYPE_OPTIONS, analyze_aba_keywords, build_product_profile, normalize_profile
 from src.exporter import create_excel_bytes, summarize_counts
 from src.loader import build_column_choice_labels, list_excel_sheets, load_rules, read_aba_file
 
@@ -70,20 +70,12 @@ def column_samples(df, column: str, limit: int = 3) -> str:
 def render_product_profile_editor(auto_profile: dict[str, Any]) -> dict[str, Any]:
     profile = normalize_profile(auto_profile)
     with st.expander("自动识别到的产品画像（可修改）", expanded=True):
-        st.caption("请快速确认程序对产品的理解是否正确。这里的结果会直接影响 ABA 词分类。")
+        st.caption("请先确认当前产品类型。系统会按产品类型应用不同关键词规则，这里会直接影响 ABA 词分类。")
         product_type = st.selectbox(
-            "产品类型",
+            "产品类型确认",
             PRODUCT_TYPE_OPTIONS,
             index=PRODUCT_TYPE_OPTIONS.index(profile["product_type"]),
-            format_func=lambda value: {
-                "carry_on_luggage": "登机箱 / carry on",
-                "checked_luggage": "托运行李箱 / checked",
-                "trunk_luggage": "trunk结构行李箱",
-                "front_pocket_luggage": "前仓商务登机箱",
-                "luggage_set": "行李箱套装",
-                "accessory": "配件",
-                "unknown": "未确认",
-            }.get(value, value),
+            format_func=lambda value: PRODUCT_TYPE_LABELS.get(value, value),
         )
 
         col1, col2 = st.columns(2)
@@ -93,6 +85,7 @@ def render_product_profile_editor(auto_profile: dict[str, Any]) -> dict[str, Any
             is_carry_on = st.checkbox("是否 carry on", value=profile["is_carry_on"])
         with col2:
             is_luggage_set = st.checkbox("是否套装", value=profile["is_luggage_set"])
+            is_accessory = st.checkbox("是否配件产品", value=profile.get("is_accessory", False))
             is_trunk_style = st.checkbox("是否 trunk 结构", value=profile["is_trunk_style"])
             is_checked = st.checkbox("是否 checked", value=profile["is_checked"])
 
@@ -118,6 +111,7 @@ def render_product_profile_editor(auto_profile: dict[str, Any]) -> dict[str, Any
             "brand_terms": split_input(brand_terms),
             "is_single_luggage": is_single_luggage,
             "is_luggage_set": is_luggage_set,
+            "is_accessory": is_accessory,
             "is_front_pocket": is_front_pocket,
             "is_trunk_style": is_trunk_style,
             "is_carry_on": is_carry_on,
@@ -139,14 +133,14 @@ def main() -> None:
     left, right = st.columns([0.38, 0.62], gap="large")
     with left:
         st.subheader("关键词库信息")
-        product_line = st.text_input("产品线", placeholder="例如：M2 / G3-G4 / M19 / 通用工具类")
-        applicable_product = st.text_input("适用产品", placeholder="例如：20 inch front pocket carry on luggage / SKU / ASIN")
+        product_line = st.text_input("产品线", placeholder="例如：M2 / G3-G4 / M19 / 其他产品线")
+        applicable_product = st.text_input("适用产品", placeholder="例如：Carry-On / Checked / Trunk / Front Pocket / Luggage Set / Accessory / SKU / ASIN")
         source = st.text_input("来源", value="ABA搜索词表")
 
         product_info = st.text_area(
             "粘贴产品标题、五点或产品说明",
             height=220,
-            placeholder="例如：20 inch hardside carry on luggage with front pocket and laptop compartment, black/silver/red/blue...",
+            placeholder="例如：26 Inch Medium Checked Trunk Luggage / 20 Inch Carry On Luggage / Front Pocket Carry-On / Luggage Tags...",
         )
         st.subheader("可选补充字段")
         core_terms = st.text_input("产品核心词", placeholder="carry on luggage, front pocket, laptop compartment")

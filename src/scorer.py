@@ -122,6 +122,12 @@ def risk_score(flags: dict[str, Any], relevance_score: int) -> int:
         score += 25
     if flags.get("is_different_category"):
         score += 80
+    if flags.get("is_hard_mismatch"):
+        score += 85
+    if flags.get("is_type_downgrade"):
+        score += 45
+    if flags.get("is_size_mismatch"):
+        score += 35
     if flags.get("is_irrelevant"):
         score += 75
     if flags.get("is_generic"):
@@ -167,6 +173,12 @@ def classify_priority(
 
     if flags.get("is_different_category"):
         return "D级不相关/否词", "D", "不投放 / 否词候选", "命中不同品类词"
+
+    if flags.get("is_hard_mismatch"):
+        return "D级不相关/否词", "D", "不投放 / 否词候选", "命中当前产品类型的不适配词"
+
+    if flags.get("is_type_downgrade") or flags.get("is_size_mismatch"):
+        return "待人工确认", "待确认", "降级观察 / 人工确认", "搜索词方向或尺寸与当前产品画像不完全匹配"
 
     if flags.get("is_irrelevant") or relevance_score < 40:
         return "D级不相关/否词", "D", "不投放 / 否词候选", "产品相关性低或命中不相关词"

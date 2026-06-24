@@ -34,6 +34,9 @@ amazon-aba-keyword-analyzer/
   sample_data/
     sample_aba_raw.csv
     sample_product_info.txt
+    product_type_test_cases.csv
+  tests/
+    test_product_type_rules.py
 ```
 
 ## 本地运行
@@ -65,12 +68,35 @@ streamlit run app.py
 3. 来源默认是 `ABA搜索词表`，如需区分批次可改成 `ABA 2026-W25` 等。
 4. 在“粘贴产品标题、五点或产品说明”里粘贴产品标题、五点、长描述、卖点、颜色、尺寸、材质、适用场景和不适合人群。
 5. 可选填写产品核心词、颜色、尺寸、不相关词、竞品/品牌词。
-6. 在“自动识别到的产品画像”区域确认产品类型、是否前仓、是否 trunk、是否 carry on、是否 checked、核心词、颜色词、尺寸词、配件词和品牌词。
-7. 上传亚马逊原始 ABA 搜索词表，支持 `.csv` 和 `.xlsx`。
-8. 工具会扫描前 50 行，自动跳过报告日期、报告范围、搜索词筛选、Marketplace 等元信息行，并识别真实表头。
-9. 搜索词列会默认自动使用，页面只显示识别结果和样例。手动选择功能在“高级设置：手动修正搜索词列”里。
-10. 点击“开始分析并生成关键词库”。
-11. 预览前 50 行结果并下载 Excel。
+6. 在“自动识别到的产品画像”区域确认 `产品类型确认`，可选类型包括 Carry-On、Checked、Trunk、Front Pocket Carry-On、Luggage Set、Accessory、Other / Unknown。
+7. 继续确认是否前仓、是否 trunk、是否 carry on、是否 checked、是否套装、是否配件产品、核心词、颜色词、尺寸词、配件词和品牌词。
+8. 上传亚马逊原始 ABA 搜索词表，支持 `.csv` 和 `.xlsx`。
+9. 工具会扫描前 50 行，自动跳过报告日期、报告范围、搜索词筛选、Marketplace 等元信息行，并识别真实表头。
+10. 搜索词列会默认自动使用，页面只显示识别结果和样例。手动选择功能在“高级设置：手动修正搜索词列”里。
+11. 点击“开始分析并生成关键词库”。
+12. 预览前 50 行结果并下载 Excel。
+
+## 产品类型规则
+
+工具不是按某一个 M2 20 寸黑色样例判断，而是先生成或确认 `product_profile`，再按产品类型应用规则。
+
+当前支持的产品类型：
+
+- `carry_on_luggage`：Carry-On Luggage 登机箱
+- `checked_luggage`：Checked Luggage 托运行李箱
+- `trunk_luggage`：Trunk / Trunk-Style Luggage
+- `front_pocket_luggage`：Front Pocket Carry-On Luggage 前仓登机箱
+- `luggage_set`：Luggage Set 行李箱套装
+- `accessory`：Luggage Accessory 行李箱配件
+- `unknown`：Other / Unknown
+
+同一个关键词会因当前产品类型不同而得到不同判断。例如：
+
+- `checked luggage` 对 Carry-On 会降级或待人工确认，对 Checked 会成为核心词候选。
+- `front pocket carry on luggage` 对 Front Pocket Carry-On 会升级，对 Trunk Checked 会降级或进入不相关。
+- `trunk luggage` 对 Trunk 产品会升级，对普通 Carry-On / Front Pocket Carry-On 会降级或进入不相关。
+- `luggage tags` 对非配件产品是配件词/否词候选，对配件产品可以是核心词。
+- `samsonite luggage` 会进入品牌/竞品词库，不进入普通主推词。
 
 ## 可沉淀关键词库 Sheet
 
@@ -119,12 +145,12 @@ Top1转化份额
 ## 新增评分字段
 
 - 词意图类型：核心类目词、精准长尾词、尺寸词、颜色词、功能词、场景词、泛类目词、品牌/竞品词、配件词、套装词、不同品类词、明显不相关词、待人工确认。
-- 产品相关性评分：判断搜索词和当前产品画像是否匹配。
+- 产品相关性评分：先判断搜索词和当前产品画像、产品类型是否匹配，再参考 ABA 数据。
 - 需求评分：根据 Search Frequency Rank 计算，排名越靠前分数越高。
 - 点击转化效率评分：根据 Top1点击份额、Top1转化份额和转化优势计算；数据缺失时显示为空或数据不足。
-- 风险评分：品牌词、配件词、套装词、不同品类词、不相关词会提高风险。
+- 风险评分：品牌词、配件词、套装词、不同品类词、不相关词、跨产品类型词和尺寸错配会提高风险。
 - 综合优先级评分：产品相关性权重最高，其次需求和点击转化效率，风险作为扣分项。
-- 为什么这样分类：给出一句可读解释，例如命中配件词、命中套装词但当前产品不是套装、产品为 carry on 且搜索词高度匹配等。
+- 为什么这样分类：根据当前 `product_profile` 生成解释，例如当前产品为 Trunk Checked、当前产品不是套装、当前产品不是配件、当前产品为 Front Pocket Carry-On 等。
 - 是否进入关键词库：S/A/C 默认进入，B 视风险判断，D 进入否词候选库，品牌词进入品牌竞品词库。
 - 词库类型：核心词库、测试词库、Listing埋词库、品牌竞品词库、否词候选库、待确认库。
 
@@ -178,6 +204,7 @@ config/default_rules.yaml
 - `different_category_terms`：不同品类/明显不相关词
 - `functional_terms`：功能词
 - `scene_terms`：场景词
+- `product_type_rules`：不同产品类型下的核心词、精准词、降级词和不适配词
 - `translation_terms`：内置中文翻译词典
 
 修改后重新运行 Streamlit 即可生效。
@@ -186,3 +213,10 @@ config/default_rules.yaml
 
 - `sample_data/sample_product_info.txt`：示例产品信息
 - `sample_data/sample_aba_raw.csv`：模拟亚马逊 ABA 原始导出格式，前几行包含报告日期、报告范围、搜索词筛选等元信息，后面才是真实表头和搜索词数据
+- `sample_data/product_type_test_cases.csv`：多产品类型规则测试样例，覆盖 M2 Carry-On、M19 Trunk Checked、G3/G4 Front Pocket、Accessory 等场景
+
+可以运行产品类型规则测试：
+
+```bash
+python tests/test_product_type_rules.py
+```
