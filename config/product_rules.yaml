@@ -1,0 +1,32 @@
+product_lines:
+  M19:
+    display_name: M19
+    colors: [black, green, brown, purple, beige]
+    sizes: [20 inch, 26 inch, 30 inch, medium, large, checked]
+    core_terms: [trunk luggage, trunk suitcase, trunk style luggage, checked luggage, medium checked luggage, large checked luggage, 26 inch luggage, 30 inch luggage, deep compartment, "3:7 split"]
+    unsuitable_terms: [pink, red, blue, white, silver, front pocket, laptop compartment, usb, underseat, backpack, duffel, duffle, luggage set, suitcase set, kids, ride on, scooter, softside, soft side, fabric, luggage cover, replacement wheel, phone case]
+  M2:
+    display_name: M2
+    colors: [black, blue, pink, white]
+    sizes: [20 inch, 22x14x9, carry on, airline approved]
+    core_terms: [carry on luggage, carry on suitcase, 20 inch carry on luggage, 22x14x9 carry on luggage, airline approved carry on luggage, hardside carry on luggage]
+    unsuitable_terms: [trunk, trunk luggage, front pocket, laptop compartment, underseat, backpack, duffel, duffle, luggage set, suitcase set, kids, ride on, scooter, softside, soft side, fabric, replacement wheel, phone case]
+  G3/G4:
+    display_name: G3/G4
+    colors: [black, silver, red, blue]
+    sizes: [20 inch, 22x14x9, carry on, airline approved]
+    core_terms: [front pocket carry on luggage, carry on luggage with front pocket, laptop compartment carry on luggage, carry on luggage with laptop compartment, business carry on luggage, 22x14x9 carry on luggage, 20 inch carry on luggage]
+    unsuitable_terms: [trunk, trunk luggage, checked large, 26 inch, 30 inch, medium checked, large checked, underseat, backpack, duffel, duffle, luggage set, suitcase set, kids, ride on, scooter, softside, soft side, fabric, replacement wheel, phone case]
+  通用工具类:
+    display_name: 通用工具类
+    colors: []
+    sizes: []
+    core_terms: [luggage, suitcase, carry on, checked luggage, hardside luggage]
+    unsuitable_terms: [phone case, iphone, airpod, wallet, sticker, decals, scooter]
+
+global_terms:
+  brand_terms: [samsonite, rimowa, away, monos, travelers choice, travelpro, american tourister, delsey, swissgear, briggs riley, mixi, ifly, coolife, it luggage, beis, july, tumi]
+  accessory_terms: [cover, luggage cover, suitcase cover, wheel replacement, replacement wheel, wheels, phone case, iphone, airpod, wallet, sticker, decals, lock replacement, zipper repair, luggage tag, packing cubes, backpack, duffel, duffle, tote, kids, ride on, scooter]
+  functional_terms: [hardside, hard shell, spinner, expandable, lightweight, waterproof, tsa lock, lock, front pocket, laptop compartment, usb, deep compartment, "3:7 split", airline approved]
+  scene_terms: [travel, business, airline, carry on, checked, international, domestic, vacation, trip, flight]
+  low_price_terms: [cheap, discount, deal, clearance, outlet, under, budget, affordable]
