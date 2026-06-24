@@ -5,144 +5,107 @@ from typing import Any
 from .utils import parse_number, parse_percent
 
 
-def get_value(row: Any, column: str | None):
+def get_row_value(row: Any, column: str | None):
     if not column:
         return None
     try:
         value = row[column]
     except Exception:
         return None
-    return None if str(value).lower() == "nan" else value
+    if str(value).strip().lower() in {"", "nan", "none"}:
+        return None
+    return value
 
 
-def extract_metrics(row: Any, detected_columns: dict[str, str]) -> dict[str, Any]:
-    aba_rank = parse_number(get_value(row, detected_columns.get("aba_rank")))
-    click_share = parse_percent(get_value(row, detected_columns.get("click_share")))
-    conversion_share = parse_percent(get_value(row, detected_columns.get("conversion_share")))
-    clicks = parse_number(get_value(row, detected_columns.get("clicks")))
-    spend = parse_number(get_value(row, detected_columns.get("spend")))
-    orders = parse_number(get_value(row, detected_columns.get("orders")))
-    sales = parse_number(get_value(row, detected_columns.get("sales")))
-    acos = parse_percent(get_value(row, detected_columns.get("acos")))
-    ctr = parse_percent(get_value(row, detected_columns.get("ctr")))
-    cpc = parse_number(get_value(row, detected_columns.get("cpc")))
+def extract_aba_metrics(row: Any, detected_columns: dict[str, str]) -> dict[str, float | None]:
     return {
-        "aba_rank": aba_rank,
-        "click_share": click_share,
-        "conversion_share": conversion_share,
-        "clicks": clicks,
-        "spend": spend,
-        "orders": orders,
-        "sales": sales,
-        "acos": acos,
-        "ctr": ctr,
-        "cpc": cpc,
+        "search_frequency_rank": parse_number(get_row_value(row, detected_columns.get("search_frequency_rank"))),
+        "click_share": parse_percent(get_row_value(row, detected_columns.get("click_share"))),
+        "conversion_share": parse_percent(get_row_value(row, detected_columns.get("conversion_share"))),
     }
 
 
-def has_aba_data(metrics: dict[str, Any]) -> bool:
-    return any(metrics.get(key) is not None for key in ["aba_rank", "click_share", "conversion_share"])
+def demand_score(rank: float | None) -> str:
+    if rank is None:
+        return "数据不足"
+    if rank <= 10000:
+        return "高"
+    if rank <= 50000:
+        return "中高"
+    if rank <= 150000:
+        return "中"
+    if rank <= 300000:
+        return "偏低"
+    return "低"
 
 
-def has_ad_data(metrics: dict[str, Any]) -> bool:
-    return any(metrics.get(key) is not None for key in ["clicks", "spend", "orders", "sales", "acos", "ctr", "cpc"])
+def click_conversion_efficiency(click_share: float | None, conversion_share: float | None) -> str:
+    if click_share is None or conversion_share is None:
+        return "数据不足"
+    advantage = conversion_share - click_share
+    if advantage > 0.005:
+        return "成交效率强"
+    if abs(advantage) <= 0.005:
+        return "正常"
+    if click_share >= 0.08 and conversion_share < click_share:
+        return "点击强但成交弱"
+    if click_share < 0.03 and conversion_share < 0.03:
+        return "弱"
+    return "成交偏弱"
 
 
-def aba_category(metrics: dict[str, Any], basic: dict[str, Any]) -> tuple[str | None, str | None]:
-    if not has_aba_data(metrics):
-        return None, None
-    if basic["is_brand"]:
-        return "品牌词/竞品词", "ABA：命中品牌词库，需单独按竞品词策略处理。"
-    if not basic["is_product_related"]:
-        if basic["is_accessory"]:
-            return "词组否定建议", "ABA：配件/不相关词，建议词组否定。"
-        return "精准否定建议", "ABA：产品线不相关，建议精准否定。"
+def has_good_rank(rank: float | None) -> bool:
+    return rank is not None and rank <= 50000
 
-    rank = metrics.get("aba_rank")
+
+def has_search_volume(rank: float | None) -> bool:
+    return rank is not None and rank <= 150000
+
+
+def conversion_not_bad(click_share: float | None, conversion_share: float | None) -> bool:
+    if click_share is None or conversion_share is None:
+        return False
+    return conversion_share >= click_share - 0.01
+
+
+def conversion_strong(click_share: float | None, conversion_share: float | None) -> bool:
+    if click_share is None or conversion_share is None:
+        return False
+    return conversion_share >= click_share
+
+
+def classify_priority(
+    relevance_score: int,
+    metrics: dict[str, float | None],
+    flags: dict[str, bool],
+    click_efficiency: str,
+) -> tuple[str, str, str]:
+    rank = metrics.get("search_frequency_rank")
     click_share = metrics.get("click_share")
     conversion_share = metrics.get("conversion_share")
 
-    rank_good = rank is not None and rank <= 20000
-    conversion_ok = conversion_share is not None and click_share is not None and conversion_share >= click_share
-    click_high_conversion_low = (
-        click_share is not None
-        and click_share >= 0.08
-        and conversion_share is not None
-        and conversion_share < click_share
-    )
+    if flags["is_brand"]:
+        return "品牌/竞品词", "品牌/竞品", "单独品牌词测试或竞品分析，不进入普通主推词"
 
-    if rank_good and conversion_ok:
-        return "核心主推词", "ABA：排名靠前且转化份额不低于点击占比。"
-    if click_high_conversion_low:
-        return "低价测试词", "ABA：点击占比较高但转化份额偏低。"
-    if basic["has_function_or_attribute"]:
-        return "Listing埋词", "ABA：相关的功能/属性词，适合埋词。"
-    return "待人工确认", "ABA：数据不足或表现不够明确。"
+    if flags["is_accessory"] or flags["is_irrelevant"] or flags["is_different_category"] or relevance_score < 40:
+        return "D级不相关/否词", "D", "不投放 / 否词候选"
 
+    if (
+        relevance_score >= 80
+        and has_good_rank(rank)
+        and conversion_strong(click_share, conversion_share)
+        and not flags["is_accessory"]
+        and not flags["is_irrelevant"]
+    ):
+        return "S级核心主推词", "S", "Exact / Phrase 主推，标题和图片重点承接"
 
-def ad_action(metrics: dict[str, Any], basic: dict[str, Any]) -> tuple[str, str | None, str | None]:
-    if not has_ad_data(metrics):
-        return "", None, None
+    if relevance_score >= 70 and has_search_volume(rank) and conversion_not_bad(click_share, conversion_share):
+        return "A级重点词", "A", "Phrase / Exact 测试，适合重点广告组"
 
-    if basic["is_brand"]:
-        return "建议单独竞品词策略/谨慎投放", "品牌词/竞品词", "广告：命中品牌词库，不进入普通主推词。"
+    if 50 <= relevance_score < 70 and (click_efficiency == "点击强但成交弱" or has_search_volume(rank)):
+        return "B级低价测试词", "B", "Broad / Phrase 低价测试"
 
-    clicks = metrics.get("clicks") or 0
-    orders = metrics.get("orders") or 0
-    acos = metrics.get("acos")
+    if relevance_score >= 40 and flags["has_attribute_intent"]:
+        return "C级Listing埋词", "C", "放入标题、五点、A+、Search Terms"
 
-    if basic["is_accessory"] or basic["is_unsuitable"]:
-        category = "词组否定建议" if basic["is_accessory"] else "精准否定建议"
-        return "建议词组否定或精准否定", category, "广告：明显配件/不相关词。"
-
-    if orders >= 1 and acos is not None and acos <= 0.25:
-        return "建议拉精准/保留/小幅加价", "核心主推词", "广告：有订单且 ACOS <= 25%。"
-    if clicks >= 20 and orders == 0 and basic["is_product_related"]:
-        return "建议小幅降价/继续观察", "低价测试词", "广告：点击量较高未出单但产品相关。"
-    if clicks >= 15 and orders == 0 and not basic["is_product_related"]:
-        return "建议精准否定", "精准否定建议", "广告：点击量较高未出单且产品不相关。"
-    return "待人工确认", "待人工确认", "广告：数据不足或动作不明确。"
-
-
-def choose_final_category(
-    basic: dict[str, Any],
-    metrics: dict[str, Any],
-    analysis_mode: str,
-) -> tuple[str, str, list[str]]:
-    notes: list[str] = []
-    action = ""
-    final_category = basic["base_category"]
-
-    if basic["is_brand"]:
-        notes.append("命中品牌词库，保留为品牌词/竞品词。")
-        return "品牌词/竞品词", "建议单独竞品词策略/谨慎投放", notes
-
-    if analysis_mode in {"ABA选词", "综合分析"}:
-        category, note = aba_category(metrics, basic)
-        if category:
-            final_category = category
-        if note:
-            notes.append(note)
-
-    if analysis_mode in {"广告搜索词", "综合分析"}:
-        ad_suggestion, category, note = ad_action(metrics, basic)
-        if ad_suggestion:
-            action = ad_suggestion
-        if category:
-            final_category = category
-        if note:
-            notes.append(note)
-
-    if not action:
-        if final_category in {"词组否定建议", "精准否定建议", "不相关词"}:
-            action = "建议否定/排除"
-        elif final_category == "核心主推词":
-            action = "建议加入核心投放/重点埋词"
-        elif final_category == "低价测试词":
-            action = "建议低竞价测试"
-        elif final_category == "Listing埋词":
-            action = "建议用于标题/五点/后台搜索词评估"
-        else:
-            action = "待人工确认"
-
-    return final_category, action, notes
+    return "待人工确认", "待确认", "待人工确认"

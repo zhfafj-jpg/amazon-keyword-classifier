@@ -1,0 +1,61 @@
+brand_terms: [samsonite, rimowa, away, monos, travelers choice, travelpro, american tourister, delsey, swissgear, briggs riley, mixi, ifly, coolife, it luggage, beis, july, tumi, luggex, nobl travel, amazon basics]
+
+accessory_terms: [luggage cover, suitcase cover, cover, replacement wheel, wheel replacement, wheels replacement, luggage wheel, luggage tag, tag, tags, packing cubes, phone case, iphone, airpod, wallet, sticker, decal, lock replacement, zipper repair, backpack, duffel, duffle, tote, kids, ride on, scooter, scale, weight scale]
+
+different_category_terms: [phone case, iphone, airpod, wallet, backpack, duffel, duffle, tote, kids, ride on, scooter, scale, weight scale]
+
+core_candidate_terms: [luggage, suitcase, carry on luggage, carry-on luggage, carry on suitcase, trunk luggage, trunk suitcase, checked luggage, hardside luggage, front pocket carry on luggage, laptop compartment carry on luggage]
+
+color_terms: [black, silver, red, blue, pink, white, green, brown, purple, beige, gray, grey, gold, yellow, orange]
+
+size_terms: [20 inch, 21 inch, 22 inch, 24 inch, 26 inch, 28 inch, 30 inch, 22x14x9, carry on, checked, medium, large]
+
+functional_terms: [front pocket, laptop compartment, hardside, hard shell, spinner wheels, spinner, tsa lock, expandable, deep compartment, usb, lightweight, waterproof, scratch resistant, durable]
+
+scene_terms: [travel, business, airline, carry on, checked, vacation, trip, flight, international, domestic, weekend]
+
+material_terms: [polycarbonate, abs, aluminum, fabric, softside, soft side, hard shell, hardside]
+
+low_intent_terms: [cheap, discount, deal, clearance, used, second hand, repair, replacement]
+
+translation_terms:
+  luggage: 行李箱
+  suitcase: 行李箱
+  carry on: 登机箱
+  carry-on: 登机箱
+  checked luggage: 托运行李箱
+  trunk luggage: trunk结构行李箱 / 深仓行李箱
+  trunk suitcase: trunk结构行李箱 / 深仓行李箱
+  front pocket: 前仓
+  laptop compartment: 笔记本电脑仓
+  hardside: 硬壳
+  hard shell: 硬壳
+  spinner wheels: 万向轮
+  spinner: 万向轮
+  tsa lock: TSA锁
+  expandable: 可扩展
+  underseat: 座位下行李
+  luggage set: 行李箱套装
+  duffel: 旅行包
+  duffle: 旅行包
+  backpack: 背包
+  kids: 儿童
+  cover: 保护套
+  replacement wheel: 替换轮子
+  wheel replacement: 替换轮子
+  tag: 行李牌
+  tags: 行李牌
+  rimowa: Rimowa品牌
+  samsonite: Samsonite品牌
+  away: Away品牌
+  monos: Monos品牌
+  black: 黑色
+  silver: 银色
+  red: 红色
+  blue: 蓝色
+  pink: 粉色
+  white: 白色
+  green: 绿色
+  brown: 棕色
+  purple: 紫色
+  beige: 米色

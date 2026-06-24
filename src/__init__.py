@@ -1,1 +1,1 @@
-"""Amazon keyword classifier modules."""
+"""Amazon ABA keyword analyzer modules."""
