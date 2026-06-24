@@ -26,18 +26,25 @@ PRODUCT_TYPE_OPTIONS = [
     "trunk_luggage",
     "front_pocket_luggage",
     "luggage_set",
-    "accessory",
-    "unknown",
+    "luggage_accessory",
+    "other_unknown",
 ]
 
 PRODUCT_TYPE_LABELS = {
     "carry_on_luggage": "Carry-On Luggage 登机箱",
     "checked_luggage": "Checked Luggage 托运行李箱",
-    "trunk_luggage": "Trunk / Trunk-Style Luggage",
+    "trunk_luggage": "Trunk Luggage / Trunk-Style Luggage",
     "front_pocket_luggage": "Front Pocket Carry-On Luggage 前仓登机箱",
     "luggage_set": "Luggage Set 行李箱套装",
-    "accessory": "Luggage Accessory 行李箱配件",
-    "unknown": "Other / Unknown",
+    "luggage_accessory": "Luggage Accessory 行李箱配件",
+    "other_unknown": "Other / Unknown",
+}
+
+LEGACY_PRODUCT_TYPE_ALIASES = {
+    "accessory": "luggage_accessory",
+    "unknown": "other_unknown",
+    "": "other_unknown",
+    None: "other_unknown",
 }
 
 DEFAULT_PRODUCT_TYPE_RULES = {
@@ -94,7 +101,7 @@ DEFAULT_PRODUCT_TYPE_RULES = {
         "downgrade_terms": ["single carry on luggage", "single checked luggage"],
         "hard_negative_terms": [],
     },
-    "accessory": {
+    "luggage_accessory": {
         "core_terms": ["luggage tag", "luggage tags", "luggage cover", "luggage scale", "weight scale", "luggage strap", "luggage straps", "tsa lock"],
         "precision_terms": ["leather luggage tags", "digital luggage scale", "suitcase cover", "luggage weight scale"],
         "downgrade_terms": [],
@@ -153,15 +160,29 @@ def compact_terms(terms: list[str] | object) -> list[str]:
     return output
 
 
+def canonical_product_type(value: object) -> str:
+    product_type = str(value or "").strip()
+    product_type = LEGACY_PRODUCT_TYPE_ALIASES.get(product_type, product_type)
+    if product_type not in PRODUCT_TYPE_OPTIONS:
+        return "other_unknown"
+    return product_type
+
+
 def _rules_list(rules: dict[str, Any], key: str) -> list[str]:
     return compact_terms(rules.get(key, []))
 
 
 def _product_rules(rules: dict[str, Any], product_type: str) -> dict[str, Any]:
+    product_type = canonical_product_type(product_type)
     configured = rules.get("product_type_rules", {})
     if isinstance(configured, dict) and isinstance(configured.get(product_type), dict):
         merged = dict(DEFAULT_PRODUCT_TYPE_RULES.get(product_type, {}))
         merged.update(configured[product_type])
+        return merged
+    legacy_key = "accessory" if product_type == "luggage_accessory" else "unknown" if product_type == "other_unknown" else product_type
+    if isinstance(configured, dict) and isinstance(configured.get(legacy_key), dict):
+        merged = dict(DEFAULT_PRODUCT_TYPE_RULES.get(product_type, {}))
+        merged.update(configured[legacy_key])
         return merged
     return DEFAULT_PRODUCT_TYPE_RULES.get(product_type, {})
 
@@ -252,7 +273,7 @@ def infer_product_type(text: str, core_terms: list[str], rules: dict[str, Any]) 
     if _has_any(source, _rules_list(rules, "set_terms")):
         return "luggage_set"
     if _has_any(source, _rules_list(rules, "accessory_terms")):
-        return "accessory"
+        return "luggage_accessory"
     if _has_any(source, ["front pocket", "laptop compartment"]):
         return "front_pocket_luggage"
     if _has_any(source, ["trunk luggage", "trunk suitcase", "trunk style", "trunk-style", "deep compartment", "3:7 split", "3 7 split"]):
@@ -261,7 +282,7 @@ def infer_product_type(text: str, core_terms: list[str], rules: dict[str, Any]) 
         return "checked_luggage"
     if _has_any(source, ["carry on luggage", "carry-on luggage", "carry on suitcase", "carry-on suitcase", "22x14x9", "airline approved"]):
         return "carry_on_luggage"
-    return "unknown"
+    return "other_unknown"
 
 
 def _default_core_for_product_type(product_type: str, rules: dict[str, Any]) -> list[str]:
@@ -293,7 +314,7 @@ def build_product_profile(
         detected_core = _default_core_for_product_type(product_type, rules) or match_terms(product_text, ["luggage", "suitcase"])
 
     is_luggage_set = product_type == "luggage_set"
-    is_accessory = product_type == "accessory"
+    is_accessory = product_type == "luggage_accessory"
     is_front_pocket = product_type == "front_pocket_luggage" or _has_any(product_text, ["front pocket", "laptop compartment"])
     is_trunk_style = product_type == "trunk_luggage" or _has_any(product_text, ["trunk", "deep compartment", "3:7 split", "3 7 split"])
     is_carry_on = product_type in {"carry_on_luggage", "front_pocket_luggage"} or _is_carry_on_query(product_text)
@@ -335,7 +356,7 @@ def normalize_profile(profile: dict[str, Any]) -> dict[str, Any]:
     ]:
         normalized[key] = compact_terms(normalized.get(key, []))
 
-    product_type = normalized.get("product_type") if normalized.get("product_type") in PRODUCT_TYPE_OPTIONS else "unknown"
+    product_type = canonical_product_type(normalized.get("product_type"))
     normalized["product_type"] = product_type
     for key in ["is_single_luggage", "is_luggage_set", "is_accessory", "is_front_pocket", "is_trunk_style", "is_carry_on", "is_checked"]:
         normalized[key] = bool(normalized.get(key))
@@ -350,14 +371,14 @@ def normalize_profile(profile: dict[str, Any]) -> dict[str, Any]:
         normalized.update({"is_trunk_style": True, "is_single_luggage": True, "is_luggage_set": False, "is_accessory": False})
     elif product_type == "luggage_set":
         normalized.update({"is_luggage_set": True, "is_single_luggage": False, "is_accessory": False})
-    elif product_type == "accessory":
+    elif product_type == "luggage_accessory":
         normalized.update({"is_accessory": True, "is_single_luggage": False, "is_luggage_set": False})
 
     return normalized
 
 
 def _keyword_hits(keyword: str, profile: dict[str, Any], rules: dict[str, Any]) -> dict[str, list[str]]:
-    product_type = profile.get("product_type", "unknown")
+    product_type = canonical_product_type(profile.get("product_type"))
     return {
         "core": match_terms(keyword, profile.get("core_terms", [])),
         "product_core": match_terms(keyword, _product_rule_terms(rules, product_type, "core_terms")),
@@ -388,7 +409,7 @@ def _has_long_tail_qualifier(keyword: str, hits: dict[str, list[str]], rules: di
 
 
 def assess_keyword_fit(keyword: str, hits: dict[str, list[str]], profile: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
-    product_type = profile.get("product_type", "unknown")
+    product_type = canonical_product_type(profile.get("product_type"))
     score = 0
     reasons: list[str] = []
     hard_mismatch = False
@@ -406,7 +427,7 @@ def assess_keyword_fit(keyword: str, hits: dict[str, list[str]], profile: dict[s
         reasons.append("命中不同品类或用户手动不相关词")
 
     if hits["accessory"]:
-        if product_type == "accessory":
+        if product_type == "luggage_accessory":
             product_match = True
             score = max(score, 90)
             reasons.append("当前产品为配件，搜索词命中配件方向")
@@ -507,7 +528,7 @@ def assess_keyword_fit(keyword: str, hits: dict[str, list[str]], profile: dict[s
             score = max(score, 55)
             reasons.append("当前产品为套装，搜索词偏单个行李箱方向，需要确认承接")
 
-    elif product_type == "accessory":
+    elif product_type == "luggage_accessory":
         if hits["accessory"]:
             product_match = True
             score = max(score, 90)
@@ -564,12 +585,12 @@ def assess_keyword_fit(keyword: str, hits: dict[str, list[str]], profile: dict[s
 def detect_keyword_intent(keyword: str, hits: dict[str, list[str]], profile: dict[str, Any], assessment: dict[str, Any] | None = None, rules: dict[str, Any] | None = None) -> str:
     rules = rules or {}
     assessment = assessment or {}
-    product_type = profile.get("product_type", "unknown")
+    product_type = canonical_product_type(profile.get("product_type"))
 
     if hits["brand"]:
         return "品牌/竞品词"
     if hits["accessory"]:
-        if product_type == "accessory":
+        if product_type == "luggage_accessory":
             return "精准长尾词" if _has_long_tail_qualifier(keyword, hits, rules) else "核心类目词"
         return "配件词"
     if hits["set"]:
@@ -615,8 +636,8 @@ def build_flags(
     assessment = assessment or {}
     return {
         "is_brand": bool(hits["brand"]),
-        "is_accessory": bool(hits["accessory"] and profile.get("product_type") != "accessory"),
-        "is_accessory_product_match": bool(hits["accessory"] and profile.get("product_type") == "accessory"),
+        "is_accessory": bool(hits["accessory"] and canonical_product_type(profile.get("product_type")) != "luggage_accessory"),
+        "is_accessory_product_match": bool(hits["accessory"] and canonical_product_type(profile.get("product_type")) == "luggage_accessory"),
         "is_set_term": bool(hits["set"]),
         "is_set_mismatch": bool(hits["set"] and not profile.get("is_luggage_set")),
         "is_different_category": bool(hits["different_category"]),
@@ -682,7 +703,7 @@ def _library_decision(category: str, risk: int) -> tuple[str, str]:
 
 
 def product_profile_label(profile: dict[str, Any]) -> str:
-    label = PRODUCT_TYPE_LABELS.get(profile.get("product_type", "unknown"), "Other / Unknown")
+    label = PRODUCT_TYPE_LABELS.get(canonical_product_type(profile.get("product_type")), "Other / Unknown")
     if profile.get("is_trunk_style") and profile.get("is_checked"):
         return "Trunk Checked 行李箱"
     if profile.get("is_front_pocket"):
@@ -852,3 +873,7 @@ def analyze_aba_keywords(
         trailing = [column for column in result_df.columns if column not in leading]
         result_df = result_df[leading + trailing]
     return result_df, rules_df
+
+
+analyze_keywords = analyze_aba_keywords
+analyze = analyze_aba_keywords

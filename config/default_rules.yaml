@@ -48,7 +48,7 @@ product_type_rules:
     precision_terms: [2 piece luggage set, 3 piece luggage set, 4 piece luggage set, 3 piece suitcase set]
     downgrade_terms: [single carry on luggage, single checked luggage]
     hard_negative_terms: []
-  accessory:
+  luggage_accessory:
     core_terms: [luggage tag, luggage tags, luggage cover, luggage scale, weight scale, luggage strap, luggage straps, tsa lock]
     precision_terms: [leather luggage tags, digital luggage scale, suitcase cover, luggage weight scale]
     downgrade_terms: []

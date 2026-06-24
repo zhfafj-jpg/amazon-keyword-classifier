@@ -154,7 +154,7 @@ def test_checked_and_accessory_are_different_profiles():
     assert category(result.loc["samsonite luggage"], columns) == BRAND
 
     profile, result, columns = build_result("Leather Luggage Tags with Privacy Cover for Suitcase Travel Bag")
-    assert profile["product_type"] == "accessory"
+    assert profile["product_type"] == "luggage_accessory"
     assert_good(result.loc["luggage tags"], columns)
     assert_d(result.loc["carry on luggage"], columns)
 

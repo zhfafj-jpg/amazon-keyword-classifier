@@ -87,8 +87,8 @@ streamlit run app.py
 - `trunk_luggage`：Trunk / Trunk-Style Luggage
 - `front_pocket_luggage`：Front Pocket Carry-On Luggage 前仓登机箱
 - `luggage_set`：Luggage Set 行李箱套装
-- `accessory`：Luggage Accessory 行李箱配件
-- `unknown`：Other / Unknown
+- `luggage_accessory`：Luggage Accessory 行李箱配件
+- `other_unknown`：Other / Unknown
 
 同一个关键词会因当前产品类型不同而得到不同判断。例如：
 
@@ -103,17 +103,28 @@ streamlit run app.py
 导出的 Excel 会额外包含一个 `可沉淀关键词库` sheet，用来长期维护关键词资产。字段固定为：
 
 ```text
+原搜索词
 关键词
 中文翻译
+词意图类型
 产品线
 适用产品
-分类结果
-推广优先级
-建议动作
 搜索频率排名
 Top1点击份额
 Top1转化份额
 转化优势
+需求评分
+点击转化效率评分
+产品相关性评分
+风险评分
+综合优先级评分
+分类结果
+推广优先级
+建议动作
+是否进入关键词库
+词库类型
+为什么这样分类
+命中的规则
 相关性评分
 是否品牌词
 是否配件词
